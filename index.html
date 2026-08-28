@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Editor Login</title>
+    <style>
+        :root {
+            --blue: #1877f2;
+            --green: #42b72a;
+            --text: #1c1e21;
+            --muted: #606770;
+            --border: #dddfe2;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            position: relative;
+            isolation: isolate;
+            margin: 0;
+            min-height: 100vh;
+            background-color: #e8eef5;
+            background-image:
+                linear-gradient(135deg, rgba(24, 119, 242, 0.12), transparent 42%),
+                linear-gradient(315deg, rgba(66, 183, 42, 0.08), transparent 38%),
+                linear-gradient(rgba(255, 255, 255, 0.42) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.42) 1px, transparent 1px);
+            background-size: auto, auto, 28px 28px, 28px 28px;
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body::before {
+            position: fixed;
+            z-index: -1;
+            inset: -5%;
+            background: url("https://miro.medium.com/v2/resize:fit:720/format:webp/1*j_T5yUj2yDXDC97c_777ng.jpeg") center / cover no-repeat;
+            content: "";
+            opacity: 0.82;
+            animation: moving-gift-background 12s ease-in-out infinite;
+        }
+
+        @keyframes moving-gift-background {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        .site-nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--blue);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+        }
+
+        .site-nav[hidden] {
+            display: none;
+        }
+
+        .site-nav a {
+            padding: 9px 18px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .site-nav a:hover,
+        .site-nav a:focus-visible {
+            background: #166fe5;
+            outline: none;
+        }
+
+        .login-page {
+            width: min(980px, 100%);
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 72px 24px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-page[hidden] {
+            display: none;
+        }
+
+        .brand-title {
+            margin: 0 0 12px;
+            color: var(--blue);
+            font-size: 62px;
+            letter-spacing: -3px;
+        }
+
+        .login-subtitle {
+            max-width: 500px;
+            margin: 0 auto 22px;
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.18;
+        }
+
+        .login-card {
+            width: min(440px, 100%);
+            padding: 28px 24px 30px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
+            text-align: center;
+        }
+
+        .login-card form {
+            display: grid;
+            gap: 12px;
+        }
+
+        .field-group {
+            display: grid;
+            gap: 6px;
+            text-align: left;
+        }
+
+        .password-field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .password-field input {
+            padding-right: 16px;
+        }
+
+        .password-toggle {
+            justify-self: end;
+            padding: 6px 8px;
+            background: transparent;
+            color: var(--blue);
+            font-size: 13px;
+        }
+
+        .password-toggle:hover,
+        .password-toggle:focus-visible {
+            background: #e7f3ff;
+            outline: none;
+        }
+
+        .field-group label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 17px;
+        }
+
+        .login-card input:focus {
+            outline: 2px solid #8ab4f8;
+            border-color: var(--blue);
+        }
+
+        button {
+            border: 0;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: bold;
+            padding: 13px 16px;
+        }
+
+        .login-button {
+            background: var(--blue);
+        }
+
+        .login-button:hover {
+            background: #166fe5;
+        }
+
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .remember-me input {
+            width: auto;
+        }
+
+        .forgot-link {
+            display: inline-block;
+            margin: 4px 0 18px;
+            color: var(--blue);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-message {
+            min-height: 20px;
+            margin: 14px 0 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-message.error {
+            color: #d93025;
+        }
+
+        .form-message.success {
+            color: #188038;
+        }
+
+        .divider {
+            border-top: 1px solid var(--border);
+            margin: 0 0 24px;
+        }
+
+        .create-button {
+            background: var(--green);
+            font-size: 16px;
+        }
+
+        .create-button:hover {
+            background: #36a420;
+        }
+
+        .create-text {
+            margin: 28px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .signup-panel[hidden] {
+            display: none;
+        }
+
+        .signup-panel h2 {
+            margin: 4px 0 6px;
+            font-size: 24px;
+        }
+
+        .signup-panel .login-subtitle {
+            margin-bottom: 18px;
+        }
+
+        .signup-panel form {
+            text-align: left;
+        }
+
+        .signup-panel button {
+            width: 100%;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 18px;
+            color: var(--blue);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .editor-page {
+            width: min(1100px, 100%);
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 90px 24px 32px;
+        }
+
+        .editor-page[hidden] {
+            display: none;
+        }
+
+        .editor-window {
+            overflow: hidden;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            background: #1e1e1e;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+        }
+
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #252526;
+            color: #d4d4d4;
+        }
+
+        .editor-toolbar strong {
+            color: #fff;
+        }
+
+        .run-button {
+            margin-left: auto;
+            padding: 8px 14px;
+            background: #16825d;
+            font-size: 14px;
+        }
+
+        .run-button:hover {
+            background: #1a9b70;
+        }
+
+            .save-button {
+                margin-left: 8px;
+                padding: 8px 14px;
+                background: #2563eb;
+                font-size: 14px;
+            }
+
+            .save-button:hover {
+                background: #1d4ed8;
+            }
+
+        .language-tabs {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px 0;
+            background: #252526;
+        }
+
+        .language-tab {
+            padding: 8px 14px;
+            border-radius: 5px 5px 0 0;
+            background: transparent;
+            color: #c5c5c5;
+            font-size: 13px;
+        }
+
+        .language-tab.active,
+        .language-tab:hover {
+            background: #1e1e1e;
+            color: #fff;
+        }
+
+        .language-tabs .save-button {
+            margin-left: auto;
+            margin-bottom: 4px;
+        }
+
+        .editor-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .new-file-button,
+        .theme-button {
+            padding: 8px 12px;
+            background: #1c4652;
+            color: #c9f4ee;
+            font-size: 13px;
+        }
+
+        .new-file-button:hover,
+        .theme-button:hover {
+            background: #2b6370;
+        }
+
+        .save-status {
+            color: #9fb4b8;
+            font: 12px/1.2 Consolas, "Courier New", monospace;
+            white-space: nowrap;
+        }
+
+        .save-status.is-dirty {
+            color: #f4c95d;
+        }
+
+        .editor-page.light-editor .editor-window {
+            border-color: #b8cdcc;
+            background: #f4f8f7;
+        }
+
+        .editor-page.light-editor .editor-toolbar,
+        .editor-page.light-editor .language-tabs,
+        .editor-page.light-editor .file-sidebar {
+            background: #d9e8e6;
+            color: #16343b;
+        }
+
+        .editor-page.light-editor .editor-toolbar strong,
+        .editor-page.light-editor .file-item {
+            color: #16343b;
+        }
+
+        .editor-page.light-editor .language-tab {
+            color: #31545a;
+        }
+
+        .editor-page.light-editor .language-tab.active,
+        .editor-page.light-editor .language-tab:hover {
+            background: #f4f8f7;
+            color: #16343b;
+        }
+
+        .editor-page.light-editor .code-editor {
+            color: transparent;
+            caret-color: #16343b;
+        }
+
+        .contact-section {
+            width: min(900px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 72px 0 100px;
+            color: #effcf9;
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            margin: 0 0 12px;
+            color: #c9f4ee;
+            font-size: 34px;
+        }
+
+        .contact-section p {
+            margin: 0;
+            color: #c3d7d6;
+        }
+
+        .contact-section p + p {
+            margin-top: 16px;
+        }
+
+        .contact-section a {
+            color: #8fca3d;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .contact-section a:hover,
+        .contact-section a:focus-visible {
+            color: #c9f4ee;
+            text-decoration: underline;
+        }
+
+        .logout-button {
+            padding: 8px 14px;
+            background: #3a3d41;
+            font-size: 14px;
+        }
+
+        .editor-body {
+            display: grid;
+            grid-template-columns: 210px 1fr;
+            min-height: 560px;
+        }
+
+        .file-sidebar {
+            padding: 20px 0;
+            background: #252526;
+            color: #c5c5c5;
+        }
+
+        .file-sidebar h2 {
+            padding: 0 18px 12px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .file-item {
+            padding: 10px 18px;
+            color: #fff;
+            background: #37373d;
+            font-size: 14px;
+        }
+
+        .code-editor-wrapper {
+            position: relative;
+            min-height: 560px;
+        }
+
+        .code-editor {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            min-height: 560px;
+            padding: 24px;
+            border: 0;
+            outline: 0;
+            resize: none;
+            background: transparent;
+            color: transparent;
+            caret-color: #fff;
+            font: 15px/1.7 Consolas, "Courier New", monospace;
+        }
+
+        .code-editor::selection {
+            background: rgba(38, 79, 120, 0.8);
+        }
+
+        .code-highlight {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 24px;
+            color: #d4d4d4;
+            font: 15px/1.7 Consolas, "Courier New", monospace;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            pointer-events: none;
+        }
+
+        .code-highlight .syntax-keyword {
+            color: #c586c0;
+        }
+
+        .code-highlight .syntax-string {
+            color: #ce9178;
+        }
+
+        .code-highlight .syntax-comment {
+            color: #6a9955;
+        }
+
+        .code-highlight .syntax-tag {
+            color: #569cd6;
+        }
+
+        .output-panel {
+            border-top: 1px solid #30363d;
+            background: #181818;
+        }
+
+        .output-title {
+            margin: 0;
+            padding: 10px 16px;
+            color: #c5c5c5;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .output-content {
+            min-height: 70px;
+            margin: 0;
+            padding: 0 16px 16px;
+            color: #9cdcfe;
+            font: 14px/1.5 Consolas, "Courier New", monospace;
+            white-space: pre-wrap;
+        }
+
+        .preview-frame {
+            display: block;
+            width: calc(100% - 32px);
+            height: 220px;
+            margin: 0 16px 16px;
+            border: 0;
+            background: #fff;
+        }
+
+        .preview-frame[hidden],
+        .output-content[hidden] {
+            display: none;
+        }
+
+        @media (max-width: 720px) {
+            .login-page {
+                display: block;
+                padding: 48px 20px 32px;
+            }
+
+            .intro {
+                margin-bottom: 32px;
+                text-align: center;
+            }
+
+            .intro h1 {
+                font-size: 52px;
+            }
+
+            .intro p {
+                margin: 0 auto;
+                font-size: 21px;
+            }
+
+            .login-card {
+                margin: 0 auto;
+            }
+        }
+
+        /* Visual system */
+        body {
+            background-color: #101820;
+            background-image:
+                linear-gradient(135deg, rgba(16, 24, 32, 0.36), rgba(16, 24, 32, 0.82)),
+                url("https://miro.medium.com/v2/resize:fit:720/format:webp/1*j_T5yUj2yDXDC97c_777ng.jpeg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+        }
+
+        body::before {
+            opacity: 0.32;
+        }
+
+        .site-nav {
+            position: fixed;
+            z-index: 10;
+            top: 18px;
+            left: 50%;
+            width: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            padding: 6px;
+            background: rgba(13, 20, 27, 0.78);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+            transform: translateX(-50%);
+            backdrop-filter: blur(14px);
+            animation: nav-drop-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+
+        .site-nav a {
+            border-radius: 999px;
+            color: #e6f7f5;
+            font-size: 14px;
+            letter-spacing: 0.2px;
+        }
+
+        .site-nav a:hover,
+        .site-nav a:focus-visible {
+            background: #16a6a0;
+            color: #081415;
+        }
+
+        .login-page {
+            padding-top: 112px;
+        }
+
+        .login-card {
+            position: relative;
+            overflow: hidden;
+            width: min(480px, 100%);
+            border: 1px solid rgba(255, 255, 255, 0.26);
+            border-radius: 22px;
+            padding: 42px 36px 34px;
+            background: rgba(248, 252, 251, 0.91);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42), 0 0 0 8px rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(18px);
+            animation: card-rise-in 800ms 120ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+
+        .login-card::before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: #16a6a0;
+            content: "";
+            animation: accent-pulse 3s ease-in-out 900ms infinite;
+        }
+
+        .brand-title {
+            margin-bottom: 10px;
+            color: #102b35;
+            font-size: clamp(44px, 7vw, 62px);
+            letter-spacing: -2px;
+            line-height: 0.98;
+        }
+
+        .login-subtitle {
+            color: #53666b;
+            font-size: 17px;
+        }
+
+        .field-group label {
+            color: #294149;
+            letter-spacing: 0.2px;
+        }
+
+        .login-card input {
+            border-color: #c6d8d7;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.74);
+            color: #102b35;
+        }
+
+        .login-card input:focus {
+            outline: 3px solid rgba(22, 166, 160, 0.22);
+            border-color: #16a6a0;
+        }
+
+        button {
+            border-radius: 10px;
+            transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .login-button {
+            background: #102b35;
+            box-shadow: 0 8px 18px rgba(16, 43, 53, 0.2);
+        }
+
+        .login-button:hover {
+            background: #164452;
+        }
+
+        .password-toggle {
+            color: #087d79;
+        }
+
+        .password-toggle:hover,
+        .password-toggle:focus-visible {
+            background: #dff5f1;
+        }
+
+        .forgot-link,
+        .back-link {
+            color: #087d79;
+        }
+
+        .create-button {
+            background: #8fca3d;
+            color: #14230d;
+            box-shadow: 0 8px 18px rgba(100, 145, 28, 0.2);
+        }
+
+        .create-button:hover {
+            background: #a4dc4c;
+        }
+
+        .editor-page {
+            padding-top: 116px;
+        }
+
+        .editor-window {
+            border-color: rgba(146, 210, 205, 0.35);
+            border-radius: 16px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.46);
+            animation: card-rise-in 800ms 120ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+
+        .editor-toolbar,
+        .language-tabs {
+            background: #102b35;
+        }
+
+        .editor-toolbar {
+            padding: 14px 18px;
+        }
+
+        .editor-toolbar strong {
+            color: #c9f4ee;
+            letter-spacing: 0.5px;
+        }
+
+        .run-button {
+            background: #16a6a0;
+            color: #071b1b;
+        }
+
+        .run-button:hover {
+            background: #43c5bb;
+        }
+
+        .save-button {
+            background: #8fca3d;
+            color: #14230d;
+        }
+
+        .save-button:hover {
+            background: #a4dc4c;
+        }
+
+        .language-tab.active,
+        .language-tab:hover {
+            background: #1c4652;
+            color: #c9f4ee;
+        }
+
+        @media (max-width: 560px) {
+            .site-nav {
+                top: 10px;
+                width: calc(100% - 24px);
+                justify-content: space-around;
+            }
+
+            .site-nav a {
+                padding: 9px 12px;
+            }
+
+            .login-card {
+                padding: 36px 22px 28px;
+            }
+
+            .editor-page {
+                padding: 90px 12px 24px;
+            }
+
+            .editor-toolbar {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .editor-toolbar .run-button {
+                margin-left: auto;
+            }
+
+            .language-tabs {
+                overflow-x: auto;
+            }
+
+            .editor-actions {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .save-status {
+                margin-left: auto;
+            }
+        }
+
+        @keyframes nav-drop-in {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        @keyframes card-rise-in {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes accent-pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.55;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="site-nav" aria-label="Main navigation">
+        <a id="home-button" href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <main class="login-page" id="home">
+        <section class="login-card" aria-labelledby="brand-name">
+            <div id="login-panel">
+                <h1 class="brand-title" id="brand-name">Code Editor</h1>
+                <p class="login-subtitle">Log in to continue</p>
+                <h2 id="login-title" hidden>Log in to Code Editor</h2>
+                <form id="login-form">
+                    <div class="field-group">
+                        <label for="email">Email address or phone number</label>
+                        <input id="email" name="email" type="text" placeholder="Enter your email or phone number" required>
+                    </div>
+                    <div class="field-group">
+                        <label for="password">Password</label>
+                        <div class="password-field">
+                            <input id="password" name="password" type="password" placeholder="Enter your password" required>
+                            <button class="password-toggle" type="button" aria-controls="password" aria-pressed="false">Show</button>
+                        </div>
+                    </div>
+                    <button class="login-button" type="submit">Log In</button>
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input name="remember" type="checkbox">
+                            Remember me
+                        </label>
+                        <a class="forgot-link" href="#">Forgot password?</a>
+                    </div>
+                </form>
+                <p class="form-message" id="login-message" role="status" aria-live="polite"></p>
+                <div class="divider"></div>
+                <button class="create-button" id="show-signup" type="button">Create New Account</button>
+                <p class="create-text"><strong>Create a Page</strong> for a celebrity, brand or business.</p>
+            </div>
+
+            <div class="signup-panel" id="signup-panel" hidden>
+                <h1 class="brand-title">Code Editor</h1>
+                <h2>Create a new account</h2>
+                <p class="login-subtitle">It is quick and easy.</p>
+
+                <form id="signup-form">
+                    <div class="field-group">
+                        <label for="full-name">Full name</label>
+                        <input id="full-name" name="fullName" type="text" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="field-group">
+                        <label for="signup-email">Email address</label>
+                        <input id="signup-email" name="email" type="email" placeholder="Enter your email address" required>
+                    </div>
+                    <div class="field-group">
+                        <label for="signup-password">New password</label>
+                        <div class="password-field">
+                            <input id="signup-password" name="password" type="password" placeholder="Create a password" minlength="8" required>
+                            <button class="password-toggle" type="button" aria-controls="signup-password" aria-pressed="false">Show</button>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label for="birth-date">Date of birth</label>
+                        <input id="birth-date" name="birthDate" type="date" required>
+                    </div>
+                    <button class="create-button" type="submit">Sign Up</button>
+                </form>
+                <p class="form-message" id="signup-message" role="status" aria-live="polite"></p>
+
+                <a class="back-link" id="show-login" href="#login">Already have an account? Log In</a>
+            </div>
+        </section>
+    </main>
+
+    <section class="contact-section" id="contact" aria-labelledby="contact-title">
+        <h2 id="contact-title">Contact</h2>
+        <p>Have a question about the editor? Reach out and let us know.</p>
+        <p>Phone: <a href="tel:09658069985">09658069985</a></p>
+        <p>Email: <a href="mailto:princedavin72@gmail.com">princedavin72@gmail.com</a></p>
+        <p>DILI AVAILABLE NIYA</p>
+    </section>
+
+    <main class="editor-page" id="editor-page" hidden>
+        <section class="editor-window" aria-label="Code Editor">
+            <header class="editor-toolbar">
+            <strong>Code Editor</strong>
+                <button class="run-button" id="run-button" type="button">Run Code</button>
+                <button class="logout-button" id="logout-button" type="button">Log Out</button>
+            </header>
+            <div class="language-tabs" role="tablist" aria-label="Programming languages">
+                <button class="language-tab active" type="button" data-language="html">HTML</button>
+                <button class="language-tab" type="button" data-language="css">CSS</button>
+                <button class="language-tab" type="button" data-language="javascript">JavaScript</button>
+                <button class="language-tab" type="button" data-language="python">Python</button>
+                <button class="language-tab" type="button" data-language="java">Java</button>
+                <div class="editor-actions">
+                    <span class="save-status" id="save-status">Saved</span>
+                    <button class="new-file-button" id="new-file-button" type="button">New File</button>
+                    <button class="theme-button" id="theme-button" type="button">Light Theme</button>
+                    <button class="save-button" id="save-button" type="button">Save File</button>
+                </div>
+            </div>
+            <div class="editor-body">
+                <aside class="file-sidebar">
+                    <h2>Explorer</h2>
+                    <div class="file-item">index.html</div>
+                    <div class="file-item">style.css</div>
+                    <div class="file-item">script.js</div>
+                </aside>
+                <div class="code-editor-wrapper">
+                    <pre class="code-highlight" id="code-highlight" aria-hidden="true"></pre>
+                    <textarea class="code-editor" id="code-editor" spellcheck="false" aria-label="Code editor">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;title&gt;Code Editor&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Welcome to Code Editor&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+                </div>
+            </div>
+            <section class="output-panel" aria-labelledby="output-title">
+                <h2 class="output-title" id="output-title">Output</h2>
+                <pre class="output-content" id="output-content">Click Run Code to see the result.</pre>
+                <iframe class="preview-frame" id="preview-frame" title="Code preview" hidden></iframe>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        const loginPanel = document.getElementById("login-panel");
+        const loginPage = document.getElementById("home");
+        const editorPage = document.getElementById("editor-page");
+        const siteNav = document.querySelector(".site-nav");
+        const homeButton = document.getElementById("home-button");
+        const signupPanel = document.getElementById("signup-panel");
+        const showSignup = document.getElementById("show-signup");
+        const showLogin = document.getElementById("show-login");
+        const loginForm = document.getElementById("login-form");
+        const signupForm = document.getElementById("signup-form");
+        const loginMessage = document.getElementById("login-message");
+        const signupMessage = document.getElementById("signup-message");
+        const passwordToggles = document.querySelectorAll(".password-toggle");
+        const logoutButton = document.getElementById("logout-button");
+        const runButton = document.getElementById("run-button");
+        const saveButton = document.getElementById("save-button");
+        const codeEditor = document.getElementById("code-editor");
+        const codeHighlight = document.getElementById("code-highlight");
+        const outputContent = document.getElementById("output-content");
+        const previewFrame = document.getElementById("preview-frame");
+        const languageTabs = document.querySelectorAll(".language-tab");
+        const languageTabBar = document.querySelector(".language-tabs");
+        const saveStatus = document.getElementById("save-status");
+        const newFileButton = document.getElementById("new-file-button");
+        const themeButton = document.getElementById("theme-button");
+        let activeLanguage = "html";
+        let autoSaveTimer;
+
+        const codeSamples = {
+            html: `&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+    &lt;h1&gt;Welcome to Code Editor&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;`,
+            css: `body {
+    background: #f0f2f5;
+    color: #1c1e21;
+    font-family: Arial, sans-serif;
+}`,
+            javascript: `function greetUser(name) {
+    return "Welcome to Code Editor, " + name + "!";
+}
+
+console.log(greetUser("Developer"));`,
+            python: `def greet_user(name):
+    return f"Welcome to Code Editor, {name}!"
+
+print(greet_user("Developer"))`,
+            java: `public class CodeEditor {
+    public static void main(String[] args) {
+        System.out.println("Welcome to Code Editor!");
+    }
+}`
+        };
+
+        const fileStorageKey = "codeEditorFiles";
+        const storedFiles = JSON.parse(localStorage.getItem(fileStorageKey) || "null");
+        const fileStates = storedFiles && typeof storedFiles === "object"
+            ? storedFiles
+            : { ...codeSamples };
+        const fileExtensions = {
+            html: "html",
+            css: "css",
+            javascript: "js",
+            python: "py",
+            java: "java"
+        };
+        const fileNames = {};
+
+        function persistFiles() {
+            localStorage.setItem(fileStorageKey, JSON.stringify(fileStates));
+        }
+
+        function updateSaveStatus(isDirty) {
+            saveStatus.textContent = isDirty ? "Unsaved changes" : "Saved";
+            saveStatus.classList.toggle("is-dirty", isDirty);
+        }
+
+        function getFileExtension(fileKey) {
+            return fileExtensions[fileKey] || "txt";
+        }
+
+        function selectFile(fileKey) {
+            activeLanguage = fileKey;
+            languageTabBar.querySelectorAll(".language-tab").forEach((tab) => tab.classList.remove("active"));
+            languageTabBar.querySelector(`[data-language="${fileKey}"]`)?.classList.add("active");
+            codeEditor.value = fileStates[fileKey] || "";
+            updateCodeHighlight();
+            updateSaveStatus(false);
+            outputContent.textContent = "Click Run Code to see the result.";
+            outputContent.hidden = false;
+            previewFrame.hidden = true;
+        }
+
+        function saveActiveFile() {
+            fileStates[activeLanguage] = codeEditor.value;
+            persistFiles();
+            updateSaveStatus(false);
+
+            const fileName = fileNames[activeLanguage] || `code-editor.${getFileExtension(activeLanguage)}`;
+            const file = new Blob([codeEditor.value], { type: "text/plain" });
+            const downloadUrl = URL.createObjectURL(file);
+            const downloadLink = document.createElement("a");
+
+            downloadLink.href = downloadUrl;
+            downloadLink.download = fileName;
+            downloadLink.click();
+            URL.revokeObjectURL(downloadUrl);
+        }
+
+        function escapeCode(code) {
+            return code.replace(/[&<>"']/g, (character) => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                "\"": "&quot;",
+                "'": "&#39;"
+            }[character]));
+        }
+
+        function updateCodeHighlight() {
+            const tokenMatches = /\/\/[^\n]*|#[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|<\/?[A-Za-z][^>]*>/g;
+            const tokens = [];
+            const protectedCode = codeEditor.value.replace(tokenMatches, (token) => {
+                const tokenIndex = tokens.length;
+                const tokenClass = token.startsWith("//") || token.startsWith("#")
+                    ? "syntax-comment"
+                    : token.startsWith("<")
+                        ? "syntax-tag"
+                        : "syntax-string";
+                tokens.push(`<span class="${tokenClass}">${escapeCode(token)}</span>`);
+                return `\u0000${tokenIndex}\u0000`;
+            });
+
+            let highlightedCode = escapeCode(protectedCode).replace(
+                /\b(const|let|var|function|return|if|else|for|while|class|public|static|void|def|import|from|new|print|console|log)\b/g,
+                '<span class="syntax-keyword">$1</span>'
+            );
+
+            highlightedCode = highlightedCode.replace(/\u0000(\d+)\u0000/g, (_, tokenIndex) => tokens[tokenIndex]);
+            codeHighlight.innerHTML = highlightedCode || " ";
+            codeHighlight.scrollTop = codeEditor.scrollTop;
+            codeHighlight.scrollLeft = codeEditor.scrollLeft;
+        }
+
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `form-message ${type}`;
+        }
+
+        function clearLoginCredentials() {
+            document.getElementById("email").value = "";
+            document.getElementById("password").value = "";
+            loginForm.reset();
+        }
+
+        function openEditorTab() {
+            const editorUrl = `${window.location.href.split("#")[0]}#editor`;
+            const editorTab = window.open(editorUrl, "_blank");
+
+            if (!editorTab) {
+                showMessage(loginMessage, "Please allow pop-ups to open the editor.", "error");
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const formData = new FormData(loginForm);
+            const email = formData.get("email").trim().toLowerCase();
+            const password = formData.get("password");
+            const savedAccount = JSON.parse(localStorage.getItem("runekingAccount"));
+
+            if (!savedAccount || savedAccount.email !== email || savedAccount.password !== password) {
+                showMessage(loginMessage, "Email or password is incorrect.", "error");
+                return;
+            }
+
+            showMessage(loginMessage, "Login successful. Welcome to Code Editor!", "success");
+            clearLoginCredentials();
+            openEditorTab();
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+
+            const formData = new FormData(signupForm);
+            const email = formData.get("email").trim().toLowerCase();
+            const password = formData.get("password");
+
+            localStorage.setItem("runekingAccount", JSON.stringify({ email, password }));
+            signupForm.reset();
+            alert("Account created successfully! You can now log in.");
+            signupPanel.hidden = true;
+            loginPanel.hidden = false;
+            document.getElementById("email").value = email;
+            document.getElementById("password").focus();
+        }
+
+        showSignup.addEventListener("click", () => {
+            loginPanel.hidden = true;
+            signupPanel.hidden = false;
+        });
+
+        showLogin.addEventListener("click", (event) => {
+            event.preventDefault();
+            signupPanel.hidden = true;
+            loginPanel.hidden = false;
+        });
+
+        function goToLogin(event) {
+            event.preventDefault();
+            editorPage.hidden = true;
+            loginPage.hidden = false;
+            signupPanel.hidden = true;
+            loginPanel.hidden = false;
+            siteNav.hidden = false;
+            window.location.hash = "home";
+        }
+
+        homeButton.addEventListener("click", goToLogin);
+
+        loginForm.addEventListener("submit", handleLogin);
+        signupForm.addEventListener("submit", handleSignup);
+
+        passwordToggles.forEach((passwordToggle) => {
+            passwordToggle.addEventListener("click", () => {
+                const passwordInput = document.getElementById(passwordToggle.getAttribute("aria-controls"));
+                const isVisible = passwordInput.type === "text";
+
+                passwordInput.type = isVisible ? "password" : "text";
+                passwordToggle.textContent = isVisible ? "Show" : "Hide";
+                passwordToggle.setAttribute("aria-pressed", String(!isVisible));
+            });
+        });
+
+        languageTabBar.addEventListener("click", (event) => {
+            const languageTab = event.target.closest(".language-tab");
+
+            if (languageTab) {
+                selectFile(languageTab.dataset.language);
+            }
+        });
+
+        codeEditor.addEventListener("input", () => {
+            fileStates[activeLanguage] = codeEditor.value;
+            persistFiles();
+            updateCodeHighlight();
+            updateSaveStatus(true);
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                updateSaveStatus(false);
+            }, 700);
+        });
+        codeEditor.addEventListener("scroll", updateCodeHighlight);
+        updateCodeHighlight();
+
+        saveButton.addEventListener("click", saveActiveFile);
+
+        newFileButton.addEventListener("click", () => {
+            const fileName = prompt("Enter a file name", "untitled.txt")?.trim();
+
+            if (!fileName) {
+                return;
+            }
+
+            const fileKey = `custom-${Date.now()}`;
+            fileStates[fileKey] = "";
+            fileNames[fileKey] = fileName;
+            fileExtensions[fileKey] = fileName.split(".").pop() || "txt";
+
+            const languageTab = document.createElement("button");
+            languageTab.className = "language-tab";
+            languageTab.type = "button";
+            languageTab.dataset.language = fileKey;
+            languageTab.textContent = fileName;
+            languageTabBar.insertBefore(languageTab, document.querySelector(".editor-actions"));
+            persistFiles();
+            selectFile(fileKey);
+        });
+
+        themeButton.addEventListener("click", () => {
+            editorPage.classList.toggle("light-editor");
+            const isLight = editorPage.classList.contains("light-editor");
+            themeButton.textContent = isLight ? "Dark Theme" : "Light Theme";
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+                event.preventDefault();
+                saveActiveFile();
+            }
+        });
+
+        runButton.addEventListener("click", () => {
+            outputContent.hidden = false;
+            previewFrame.hidden = true;
+
+            if (activeLanguage === "html") {
+                previewFrame.srcdoc = codeEditor.value;
+                outputContent.hidden = true;
+                previewFrame.hidden = false;
+                return;
+            }
+
+            if (activeLanguage === "css") {
+                previewFrame.srcdoc = `<style>${codeEditor.value}</style><main><h1>Code Editor CSS Preview</h1><p>Your CSS is being previewed here.</p></main>`;
+                outputContent.hidden = true;
+                previewFrame.hidden = false;
+                return;
+            }
+
+            if (activeLanguage === "javascript") {
+                const messages = [];
+                const originalLog = console.log;
+                console.log = (...values) => messages.push(values.join(" "));
+
+                try {
+                    new Function(codeEditor.value)();
+                    outputContent.textContent = messages.length ? messages.join("\n") : "Code ran successfully.";
+                } catch (error) {
+                    outputContent.textContent = `Error: ${error.message}`;
+                } finally {
+                    console.log = originalLog;
+                }
+                return;
+            }
+
+            if (activeLanguage === "java") {
+                const javaOutput = [...codeEditor.value.matchAll(/System\.out\.println\(\s*"([^"]*)"\s*\)\s*;/g)]
+                    .map((match) => match[1]);
+                outputContent.textContent = javaOutput.length
+                    ? javaOutput.join("\n")
+                    : "Java output preview supports System.out.println(\"text\"). A JDK is required for full execution.";
+                return;
+            }
+
+            const outputMessages = {
+                python: "Python needs a Python interpreter to run.",
+                java: "Java needs a JDK to compile and run."
+            };
+            outputContent.textContent = outputMessages[activeLanguage];
+        });
+
+        logoutButton.addEventListener("click", () => {
+            editorPage.hidden = true;
+            loginPage.hidden = false;
+            siteNav.hidden = false;
+            loginForm.reset();
+        });
+
+        if (window.location.hash === "#editor") {
+            loginPage.hidden = true;
+            editorPage.hidden = false;
+            siteNav.hidden = false;
+        }
+    </script>
