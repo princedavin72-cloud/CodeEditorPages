@@ -281,6 +281,10 @@
             width: 100%;
         }
 
+        .signup-panel .password-toggle {
+            width: auto;
+        }
+
         .back-link {
             display: inline-block;
             margin-top: 18px;
@@ -1089,7 +1093,16 @@ print(greet_user("Developer"))`,
         };
 
         const fileStorageKey = "codeEditorFiles";
-        const storedFiles = JSON.parse(localStorage.getItem(fileStorageKey) || "null");
+        function readStoredObject(key) {
+            try {
+                const value = JSON.parse(localStorage.getItem(key) || "null");
+                return value && typeof value === "object" ? value : null;
+            } catch {
+                return null;
+            }
+        }
+
+        const storedFiles = readStoredObject(fileStorageKey);
         const fileStates = storedFiles && typeof storedFiles === "object"
             ? storedFiles
             : { ...codeSamples };
@@ -1101,6 +1114,14 @@ print(greet_user("Developer"))`,
             java: "java"
         };
         const fileNames = {};
+
+        const rememberedLogin = readStoredObject("rememberedLogin");
+
+        if (rememberedLogin?.email && rememberedLogin?.password) {
+            document.getElementById("email").value = rememberedLogin.email;
+            document.getElementById("password").value = rememberedLogin.password;
+            loginForm.elements.remember.checked = true;
+        }
 
         function persistFiles() {
             localStorage.setItem(fileStorageKey, JSON.stringify(fileStates));
@@ -1189,7 +1210,12 @@ print(greet_user("Developer"))`,
             loginForm.reset();
         }
 
+        function isAuthenticated() {
+            return sessionStorage.getItem("codeEditorAuthenticated") === "true";
+        }
+
         function openEditorTab() {
+            sessionStorage.setItem("codeEditorAuthenticated", "true");
             const editorUrl = `${window.location.href.split("#")[0]}#editor`;
             const editorTab = window.open(editorUrl, "_blank");
 
@@ -1204,11 +1230,18 @@ print(greet_user("Developer"))`,
             const formData = new FormData(loginForm);
             const email = formData.get("email").trim().toLowerCase();
             const password = formData.get("password");
-            const savedAccount = JSON.parse(localStorage.getItem("runekingAccount"));
+            const rememberLogin = formData.get("remember") === "on";
+            const savedAccount = readStoredObject("runekingAccount");
 
             if (!savedAccount || savedAccount.email !== email || savedAccount.password !== password) {
                 showMessage(loginMessage, "Email or password is incorrect.", "error");
                 return;
+            }
+
+            if (rememberLogin) {
+                localStorage.setItem("rememberedLogin", JSON.stringify({ email, password }));
+            } else {
+                localStorage.removeItem("rememberedLogin");
             }
 
             showMessage(loginMessage, "Login successful. Welcome to Code Editor!", "success");
@@ -1250,6 +1283,7 @@ print(greet_user("Developer"))`,
             signupPanel.hidden = true;
             loginPanel.hidden = false;
             siteNav.hidden = false;
+            sessionStorage.removeItem("codeEditorAuthenticated");
             window.location.hash = "home";
         }
 
@@ -1382,11 +1416,14 @@ print(greet_user("Developer"))`,
             loginPage.hidden = false;
             siteNav.hidden = false;
             loginForm.reset();
+            sessionStorage.removeItem("codeEditorAuthenticated");
         });
 
-        if (window.location.hash === "#editor") {
+        if (window.location.hash === "#editor" && isAuthenticated()) {
             loginPage.hidden = true;
             editorPage.hidden = false;
             siteNav.hidden = false;
+        } else if (window.location.hash === "#editor") {
+            window.location.hash = "home";
         }
     </script>
